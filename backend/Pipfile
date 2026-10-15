@@ -8,6 +8,7 @@ pytest = "*"
 fastapi = "*"
 uvicorn = "*"
 sqlalchemy = "*"
+requests = "*"
 library-skills = "*"
 
 [dev-packages]

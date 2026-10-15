@@ -1,7 +1,11 @@
+import os
+
 import requests
 
-OLLAMA_URL = "http://localhost:11434/api/chat"
-MODELO = "qwen3:1.7b"
+# Configuráveis por variável de ambiente (ex.: dentro do Docker o Ollama
+# do host é acessível em http://host.docker.internal:11434/api/chat).
+OLLAMA_URL = os.getenv("OLLAMA_URL", "http://localhost:11434/api/chat")
+MODELO = os.getenv("OLLAMA_MODELO", "qwen3:1.7b")
 
 
 def enviar_mensagem(
@@ -63,6 +67,11 @@ def enviar_mensagem(
         dados = resposta.json()
 
         return dados["message"]["content"]
+
+    except (KeyError, TypeError, ValueError):
+        raise RuntimeError(
+            "Resposta inesperada do Ollama."
+        )
 
     except requests.exceptions.ConnectionError:
         raise RuntimeError(

@@ -10,4 +10,4 @@ router = APIRouter(
 def health():
     """Retorna uma resposta simples de verificação de saúde."""
 
-    return 200, "ok"
+    return {"status": "ok"}

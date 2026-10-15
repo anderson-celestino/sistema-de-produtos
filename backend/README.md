@@ -4,7 +4,9 @@ Este projeto é uma API REST desenvolvida em Python com FastAPI para gerenciar p
 
 A estrutura do projeto inclui:
 
-- `main.py`: aplicação principal com os endpoints da API
+- `main.py`: aplicação principal (CORS, criação do banco e registro das rotas)
+- `routes`: endpoints da API (`produto`, `chat` e `health`)
+- `services`: integração com o Ollama (LLM) e geração de contexto dos produtos
 - `db`: configuração do banco e modelos de tabela
 - `entity`: modelos de dados usados pela aplicação
 - `tests`: testes automatizados
@@ -25,13 +27,13 @@ Para clonar o repositório correto, execute:
 
 ```bash
 git clone https://github.com/Testes-de-Software-Itapaje/teste_software_2026_2.git
-cd novo_testes_por_niveis
+cd teste_software_2026_2/backend
 ```
 
 Se o código já estiver baixado localmente, basta entrar na pasta do projeto:
 
 ```bash
-cd caminho/para/novo_testes_por_niveis
+cd caminho/para/teste_software_2026_2/backend
 ```
 
 ## Instalando as dependências
@@ -49,6 +51,7 @@ Isso instalará dependências como:
 - sqlalchemy
 - pydantic
 - pytest
+- requests
 - starlette
 - typing-extensions
 
@@ -92,7 +95,7 @@ curl http://127.0.0.1:8000/health
 Resposta esperada:
 
 ```json
-[200, "ok"]
+{"status": "ok"}
 ```
 
 ## Endpoints da API
@@ -117,8 +120,12 @@ curl http://127.0.0.1:8000/health
 ```json
 {
   "nome": "Notebook",
-  "descricao": "Notebook gamer",
-  "preco": 4999.99
+  "preco": 4999.99,
+  "quant_estoque": 10,
+  "validade": "31/12/2026",
+  "codigo_barras": "7891234567890",
+  "categoria": "Eletrônicos",
+  "peso": 2.5
 }
 ```
 
@@ -129,8 +136,12 @@ curl -X POST "http://127.0.0.1:8000/produto/criar" \
   -H "Content-Type: application/json" \
   -d '{
     "nome": "Notebook",
-    "descricao": "Notebook gamer",
-    "preco": 4999.99
+    "preco": 4999.99,
+    "quant_estoque": 10,
+    "validade": "31/12/2026",
+    "codigo_barras": "7891234567890",
+    "categoria": "Eletrônicos",
+    "peso": 2.5
   }'
 ```
 
@@ -165,8 +176,12 @@ curl http://127.0.0.1:8000/produto
 ```json
 {
   "nome": "Notebook Atualizado",
-  "descricao": "Notebook para desenvolvimento",
-  "preco": 4299.90
+  "preco": 4299.90,
+  "quant_estoque": 8,
+  "validade": "31/12/2026",
+  "codigo_barras": "7891234567890",
+  "categoria": "Eletrônicos",
+  "peso": 2.5
 }
 ```
 
@@ -177,8 +192,12 @@ curl -X PUT "http://127.0.0.1:8000/produto/1" \
   -H "Content-Type: application/json" \
   -d '{
     "nome": "Notebook Atualizado",
-    "descricao": "Notebook para desenvolvimento",
-    "preco": 4299.90
+    "preco": 4299.90,
+    "quant_estoque": 8,
+    "validade": "31/12/2026",
+    "codigo_barras": "7891234567890",
+    "categoria": "Eletrônicos",
+    "peso": 2.5
   }'
 ```
 
@@ -192,6 +211,36 @@ Exemplo:
 ```bash
 curl -X DELETE http://127.0.0.1:8000/produto/1
 ```
+
+### 7) Conversar com o assistente (LLM)
+
+- Método: `POST`
+- Rota: `/chat`
+- Corpo esperado:
+
+```json
+{
+  "mensagem": "Quais produtos têm estoque baixo?"
+}
+```
+
+- Resposta:
+
+```json
+{
+  "resposta": "Texto gerado pelo assistente..."
+}
+```
+
+O assistente usa o [Ollama](https://ollama.com) com os produtos cadastrados como contexto. Antes de usar:
+
+```bash
+ollama pull qwen3:1.7b
+ollama serve
+```
+
+Se o Ollama estiver fora do ar, a rota responde `503` com a mensagem de erro em `detail`.
+Para trocar a URL ou o modelo, use as variáveis de ambiente `OLLAMA_URL` (padrão `http://localhost:11434/api/chat`) e `OLLAMA_MODELO` (padrão `qwen3:1.7b`).
 
 ## Documentação interativa
 
